@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Upload, Leaf, AlertTriangle, CheckCircle } from "lucide-react";
+import { Upload, Leaf, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { simulatePestDetection, type PestResult } from "@/data/crops";
 
@@ -7,16 +7,60 @@ interface PestDetectorProps {
   onResult: (result: PestResult) => void;
 }
 
+function analyzeImageColors(imageSrc: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const size = 100;
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) { resolve(true); return; }
+      ctx.drawImage(img, 0, 0, size, size);
+      const data = ctx.getImageData(0, 0, size, size).data;
+      let greenish = 0;
+      let brownish = 0;
+      let total = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i], g = data[i + 1], b = data[i + 2];
+        total++;
+        // Green detection (leaves, crops)
+        if (g > r && g > b && g > 50) greenish++;
+        // Brown/yellow detection (soil, dry crops, grains)
+        if (r > b && g > b && r > 60 && Math.abs(r - g) < 80) brownish++;
+      }
+      const greenRatio = greenish / total;
+      const brownRatio = brownish / total;
+      // Accept if enough green or brown/earthy tones (natural/crop image)
+      resolve(greenRatio > 0.08 || brownRatio > 0.25);
+    };
+    img.onerror = () => resolve(true);
+    img.src = imageSrc;
+  });
+}
+
 export default function PestDetector({ onResult }: PestDetectorProps) {
   const [preview, setPreview] = useState<string | null>(null);
   const [result, setResult] = useState<PestResult | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [imageValid, setImageValid] = useState<boolean | null>(null);
+  const [validating, setValidating] = useState(false);
 
   const handleFile = useCallback((file: File) => {
     const reader = new FileReader();
-    reader.onload = (e) => setPreview(e.target?.result as string);
+    reader.onload = async (e) => {
+      const src = e.target?.result as string;
+      setPreview(src);
+      setResult(null);
+      setImageValid(null);
+      setValidating(true);
+      const valid = await analyzeImageColors(src);
+      setImageValid(valid);
+      setValidating(false);
+    };
     reader.readAsDataURL(file);
-    setResult(null);
   }, []);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
@@ -74,9 +118,25 @@ export default function PestDetector({ onResult }: PestDetectorProps) {
         />
       </div>
 
+      {validating && (
+        <div className="mb-3 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3 animate-fade-in">
+          <Leaf className="h-5 w-5 animate-pulse text-primary" />
+          <span className="text-foreground">🔍 फोटो जाँची जा रही है...</span>
+        </div>
+      )}
+
+      {imageValid === false && (
+        <div className="mb-3 flex items-center gap-2 rounded-lg border border-danger/30 bg-danger/5 p-3 animate-fade-in">
+          <XCircle className="h-5 w-5 text-danger" />
+          <span className="text-danger font-semibold">
+            ❌ यह फसल/पत्ते की फोटो नहीं है! कृपया फसल या पत्ते की सही फोटो डालें।
+          </span>
+        </div>
+      )}
+
       <Button
         onClick={analyze}
-        disabled={!preview || analyzing}
+        disabled={!preview || analyzing || imageValid === false || validating}
         className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
         size="lg"
       >
