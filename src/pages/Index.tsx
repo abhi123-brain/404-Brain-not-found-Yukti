@@ -7,6 +7,8 @@ import WeatherPanel from "@/components/WeatherPanel";
 import PestDetector from "@/components/PestDetector";
 import RecommendationPanel from "@/components/RecommendationPanel";
 import GovernmentSchemes from "@/components/GovernmentSchemes";
+import CollateralFreeLoans from "@/components/CollateralFreeLoans";
+import CityDemand from "@/components/CityDemand";
 import { Button } from "@/components/ui/button";
 import { Sprout, Brain } from "lucide-react";
 import type { Crop } from "@/data/crops";
@@ -81,6 +83,12 @@ const Index = () => {
 
         {/* Government Schemes */}
         <GovernmentSchemes />
+
+        {/* Collateral-Free Loans */}
+        <CollateralFreeLoans />
+
+        {/* City-wise Crop Demand */}
+        <CityDemand />
       </div>
 
       {/* Footer */}
