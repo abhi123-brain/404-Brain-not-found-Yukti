@@ -6,21 +6,16 @@ import CropDetails from "@/components/CropDetails";
 import WeatherPanel from "@/components/WeatherPanel";
 import PestDetector from "@/components/PestDetector";
 import RecommendationPanel from "@/components/RecommendationPanel";
-import PPTVivaPage from "@/components/PPTVivaPage";
+import GovernmentSchemes from "@/components/GovernmentSchemes";
 import { Button } from "@/components/ui/button";
-import { Sprout, FileText, Brain } from "lucide-react";
+import { Sprout, Brain } from "lucide-react";
 import type { Crop } from "@/data/crops";
 
 const Index = () => {
   const [selectedCrop, setSelectedCrop] = useState<Crop | null>(null);
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [pestResult, setPestResult] = useState<PestResult | null>(null);
-  const [showPPT, setShowPPT] = useState(false);
   const [showRecommendations, setShowRecommendations] = useState(false);
-
-  if (showPPT) {
-    return <PPTVivaPage onBack={() => setShowPPT(false)} />;
-  }
 
   const recommendations = getRecommendations(weather, pestResult);
 
@@ -43,22 +38,13 @@ const Index = () => {
           <p className="max-w-xl text-lg text-primary-foreground/80">
             किसानों के लिए AI-आधारित फसल सलाह, कीट पहचान, और मौसम विश्लेषण
           </p>
-          <div className="mt-5 flex gap-3">
+          <div className="mt-5">
             <Button
               size="lg"
               onClick={() => document.getElementById("main-content")?.scrollIntoView({ behavior: "smooth" })}
               className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-lg"
             >
               🚜 शुरू करें
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => setShowPPT(true)}
-              className="border-primary-foreground/30 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 text-lg"
-            >
-              <FileText className="mr-1 h-5 w-5" />
-              PPT & Viva
             </Button>
           </div>
         </div>
@@ -92,6 +78,9 @@ const Index = () => {
 
         {/* Recommendations */}
         {showRecommendations && <RecommendationPanel recommendations={recommendations} />}
+
+        {/* Government Schemes */}
+        <GovernmentSchemes />
       </div>
 
       {/* Footer */}
