@@ -86,7 +86,14 @@ const Index = () => {
         </div>
 
         {/* Recommendations */}
-        {showRecommendations && <RecommendationPanel recommendations={recommendations} />}
+        {showRecommendations && (
+          <RecommendationPanel
+            recommendations={recommendations}
+            weather={weather}
+            pestResult={pestResult}
+            selectedCrop={selectedCrop}
+          />
+        )}
 
         {/* Government Schemes */}
         <GovernmentSchemes />
