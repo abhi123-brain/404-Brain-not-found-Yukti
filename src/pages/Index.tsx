@@ -10,7 +10,8 @@ import GovernmentSchemes from "@/components/GovernmentSchemes";
 import CollateralFreeLoans from "@/components/CollateralFreeLoans";
 import CityDemand from "@/components/CityDemand";
 import { Button } from "@/components/ui/button";
-import { Sprout, Brain } from "lucide-react";
+import { Sprout, Brain, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import type { Crop } from "@/data/crops";
 
 const Index = () => {
@@ -18,6 +19,7 @@ const Index = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [pestResult, setPestResult] = useState<PestResult | null>(null);
   const [showRecommendations, setShowRecommendations] = useState(false);
+  const { signOut } = useAuth();
 
   const recommendations = getRecommendations(weather, pestResult);
 
@@ -26,6 +28,11 @@ const Index = () => {
       {/* Hero */}
       <div className="relative h-[340px] w-full overflow-hidden md:h-[420px]">
         <img src={heroFarm} alt="Indian farm" className="h-full w-full object-cover" />
+        <div className="absolute right-4 top-4 z-10">
+          <Button variant="secondary" size="sm" onClick={signOut}>
+            <LogOut className="mr-1 h-4 w-4" /> लॉगआउट
+          </Button>
+        </div>
         <div className="absolute inset-0 gradient-hero opacity-80" />
         <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
           <div className="mb-3 flex items-center gap-2">
